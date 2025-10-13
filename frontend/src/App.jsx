@@ -83,7 +83,7 @@ function App() {
             } 
           />
           <Route 
-            path="/alerts" 
+            path="/alert" 
             element={
               <ProtectedRoute>
                 <AlertsList />
