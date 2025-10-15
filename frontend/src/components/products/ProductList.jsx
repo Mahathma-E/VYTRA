@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useCurrency } from '../../context/CurrencyContext';
 import {
   Box,
   Button,
@@ -37,6 +38,7 @@ import {
 } from '@mui/icons-material';
 
 const ProductList = () => {
+  const { formatCurrency } = useCurrency();
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -205,7 +207,7 @@ const ProductList = () => {
                 <TableCell>{product.name}</TableCell>
                 <TableCell>{product.category}</TableCell>
                 <TableCell>{product.sku}</TableCell>
-                <TableCell>${product.price}</TableCell>
+                <TableCell>{formatCurrency(product.price)}</TableCell>
                 <TableCell>{product.stock}</TableCell>
                 <TableCell>
                   <Chip 
@@ -243,6 +245,7 @@ const ProductList = () => {
 };
 
 const ProductDialog = ({ open, onClose, product, onSave }) => {
+  const { currency } = useCurrency();
   const [formData, setFormData] = useState({
     name: '',
     category: '',
@@ -367,7 +370,7 @@ const ProductDialog = ({ open, onClose, product, onSave }) => {
                 margin="normal"
                 type="number"
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                  startAdornment: <InputAdornment position="start">{currency === 'INR' ? '₹' : '$'}</InputAdornment>,
                 }}
                 required
               />
@@ -382,7 +385,7 @@ const ProductDialog = ({ open, onClose, product, onSave }) => {
                 margin="normal"
                 type="number"
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                  startAdornment: <InputAdornment position="start">{currency === 'INR' ? '₹' : '$'}</InputAdornment>,
                 }}
                 required
               />

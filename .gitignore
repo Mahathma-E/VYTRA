@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Builds
+/dist/
+**/dist/
+/.vite/
+**/.vite/
+coverage/
+
+# Env & secrets
+.env
+**/.env
+.env.*
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Runtime data
+backend/uploads/
+backend/storage/
+
+# Mock data
+mock_*.xlsx
+*.xlsx
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+*.local
+*.cache

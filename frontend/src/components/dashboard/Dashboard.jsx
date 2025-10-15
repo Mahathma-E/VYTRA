@@ -16,7 +16,10 @@ import {
   Typography,
   Avatar,
   Badge,
-  Tooltip
+  Tooltip,
+  FormControl,
+  InputLabel,
+  Select
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -31,11 +34,20 @@ import {
   People as PeopleIcon,
   Category as CategoryIcon,
   TrendingUp,
-  Warning
+  Warning,
+  Upload as UploadIcon,
+  Analytics as AnalyticsIcon,
+  Edit as EditIcon,
+  Brightness4,
+  Brightness7
 } from '@mui/icons-material';
 import { useSocket } from '../../context/SocketContext';
 import { useAuth } from '../../context/AuthContext';
+import { useCurrency } from '../../context/CurrencyContext';
+import { useTheme } from '../../context/ThemeContext';
+import { useNavigate } from 'react-router-dom';
 import DashboardContent from './DashboardContent';
+import CurrencySelector from '../CurrencySelector';
 
 const drawerWidth = 240;
 
@@ -45,7 +57,10 @@ const Dashboard = () => {
   const [notificationAnchor, setNotificationAnchor] = useState(null);
   const [notifications, setNotifications] = useState(3);
   const socket = useSocket();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const { currency, updateCurrency } = useCurrency();
+  const { darkMode, toggleDarkMode } = useTheme();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (socket) {
@@ -96,21 +111,54 @@ const Dashboard = () => {
     setNotificationAnchor(null);
   };
 
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
+
+  const handleProfile = () => {
+    // Navigate to profile page (you can create this route)
+    navigate('/profile');
+    handleClose();
+  };
+
+  const handleSettings = () => {
+    // Navigate to settings page (you can create this route)
+    navigate('/settings');
+    handleClose();
+  };
+
+  const handleLogout = () => {
+    // Call the logout function from auth context
+    logout();
+    handleClose();
+  };
+
   // Define menu items based on user role
   const getMenuItems = () => {
     const baseItems = [
-      { text: 'Dashboard', icon: <DashboardIcon /> },
-      { text: 'Products', icon: <CategoryIcon /> },
-      { text: 'Inventory', icon: <InventoryIcon /> },
-      { text: 'Suppliers', icon: <SupplierIcon /> },
-      { text: 'Reports', icon: <ReportIcon /> },
-      { text: 'Analytics', icon: <TrendingUp /> },
-      { text: 'Alerts', icon: <Warning /> }
+      { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
+      { text: 'Products', icon: <CategoryIcon />, path: '/products' },
+      { text: 'Inventory', icon: <InventoryIcon />, path: '/inventory' },
+      { text: 'Suppliers', icon: <SupplierIcon />, path: '/suppliers' },
+      { text: 'Reports', icon: <ReportIcon />, path: '/reports' },
+      { text: 'Analytics', icon: <TrendingUp />, path: '/analytics' },
+      { text: 'Alerts', icon: <Warning />, path: '/alerts' },
+      { text: 'Role Test', icon: <PeopleIcon />, path: '/role-test' },
+      { text: 'Route Test', icon: <MenuIcon />, path: '/route-test' } // Add this line
     ];
+
+    // Add admin/manager specific items
+    if (user && (user.role === 'admin' || user.role === 'manager')) {
+      baseItems.splice(6, 0, 
+        { text: 'Excel Import', icon: <UploadIcon />, path: '/excel-import' },
+        { text: 'Data Analysis', icon: <AnalyticsIcon />, path: '/data-analysis' },
+        { text: 'Data Manipulation', icon: <EditIcon />, path: '/data-manipulation' }
+      );
+    }
 
     // Add Users item only for admin users
     if (user && user.role === 'admin') {
-      baseItems.splice(5, 0, { text: 'Users', icon: <PeopleIcon /> });
+      baseItems.splice(5, 0, { text: 'Users', icon: <PeopleIcon />, path: '/users' });
     }
 
     return baseItems;
@@ -120,13 +168,17 @@ const Dashboard = () => {
     <div>
       <Toolbar>
         <Typography variant="h6" noWrap component="div">
-          AIIS
+          VYTRA
         </Typography>
       </Toolbar>
       <Divider />
       <List>
         {getMenuItems().map((item) => (
-          <ListItem button key={item.text}>
+          <ListItem 
+            button 
+            key={item.text}
+            onClick={() => handleNavigation(item.path)}
+          >
             <ListItemIcon>
               {item.icon}
             </ListItemIcon>
@@ -158,8 +210,25 @@ const Dashboard = () => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Advanced Inventory Intelligence System
+            VYTRA – Real-Time Inventory Intelligence
           </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <CurrencySelector />
+            <Tooltip title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}>
+              <IconButton 
+                onClick={toggleDarkMode}
+                color="inherit"
+                sx={{ 
+                  transition: 'transform 0.3s ease',
+                  '&:hover': {
+                    transform: 'rotate(15deg)'
+                  }
+                }}
+              >
+                {darkMode ? <Brightness7 /> : <Brightness4 />}
+              </IconButton>
+            </Tooltip>
+          </Box>
           <Tooltip title="Notifications">
             <IconButton
               size="large"
@@ -210,19 +279,19 @@ const Dashboard = () => {
             open={Boolean(anchorEl)}
             onClose={handleClose}
           >
-            <MenuItem onClick={handleClose}>
+            <MenuItem onClick={handleProfile}>
               <ListItemIcon>
                 <AccountIcon fontSize="small" />
               </ListItemIcon>
               Profile
             </MenuItem>
-            <MenuItem onClick={handleClose}>
+            <MenuItem onClick={handleSettings}>
               <ListItemIcon>
                 <SettingsIcon fontSize="small" />
               </ListItemIcon>
               Settings
             </MenuItem>
-            <MenuItem onClick={handleClose}>
+            <MenuItem onClick={handleLogout}>
               <ListItemIcon>
                 <LogoutIcon fontSize="small" />
               </ListItemIcon>

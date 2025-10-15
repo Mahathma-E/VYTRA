@@ -1,0 +1,38 @@
+SmartStock Available Scripts
+=========================
+
+Getting Started:
+- get-started.bat          # One-click setup and start (recommended)
+- start-and-open.bat       # Start services and open browser
+- check-status.bat         # Check service status
+
+MongoDB Management:
+- install-mongodb.bat      # MongoDB installation helper
+- check-and-start-mongodb.bat  # Ensure MongoDB is running
+- start-with-mongodb.bat   # Start all services with MongoDB
+- stop-all.bat             # Stop all services
+
+Docker Management:
+- start-with-docker.bat    # Start with Docker
+- stop-docker.bat          # Stop Docker containers
+
+Development:
+- start-dev.js             # Node.js script to start backend/frontend
+
+Documentation:
+- SMARTSTOCK_README.md     # Main project documentation
+- SCRIPTS_GUIDE.md         # Detailed guide for all scripts
+- STARTUP_OPTIONS.md       # All startup options explained
+- SMARTSTOCK_STARTUP.md    # Comprehensive startup guide
+
+Configuration Files:
+- docker-compose.yml       # Docker configuration
+- backend/.env             # Backend configuration
+- frontend/.env            # Frontend configuration
+- backend/Dockerfile       # Backend Docker setup
+- frontend/Dockerfile      # Frontend Docker setup
+
+Recommended Workflow:
+1. Double-click get-started.bat
+2. Use the application at http://localhost:5173
+3. Run stop-all.bat when finished

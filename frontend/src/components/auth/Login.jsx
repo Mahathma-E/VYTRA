@@ -38,19 +38,26 @@ const Login = () => {
     setLoading(true);
     setError('');
     
+    // Basic validation
+    if (!email || !password) {
+      setError('Email and password are required');
+      setLoading(false);
+      return;
+    }
+    
     try {
       const response = await login(email, password);
       
       if (response.success) {
         navigate('/dashboard');
       } else {
-        setError(response.message);
+        setError(response.message || 'Login failed. Please check your credentials.');
       }
       
       setLoading(false);
     } catch (err) {
       console.error(err);
-      setError('Invalid email or password');
+      setError('An unexpected error occurred. Please try again.');
       setLoading(false);
     }
   };
@@ -68,6 +75,8 @@ const Login = () => {
           <Typography component="h1" variant="h5">
             Sign in to AIIS
           </Typography>
+          
+
           
           {error && (
             <Alert severity="error" sx={{ width: '100%', mt: 2 }}>

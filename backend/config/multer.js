@@ -28,11 +28,17 @@ const storage = multer.diskStorage({
 
 // File filter
 const fileFilter = (req, file, cb) => {
-  // Accept images only
-  if (file.mimetype.startsWith('image/')) {
+  // Accept images and Excel/CSV files
+  if (file.mimetype.startsWith('image/') || 
+      file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+      file.mimetype === 'application/vnd.ms-excel' ||
+      file.mimetype === 'text/csv' ||
+      file.originalname.endsWith('.xlsx') ||
+      file.originalname.endsWith('.xls') ||
+      file.originalname.endsWith('.csv')) {
     cb(null, true);
   } else {
-    cb(new Error('Only image files are allowed!'), false);
+    cb(new Error('Only image, Excel (.xlsx, .xls), and CSV files are allowed!'), false);
   }
 };
 

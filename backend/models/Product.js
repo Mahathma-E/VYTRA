@@ -22,12 +22,14 @@ const productSchema = new mongoose.Schema({
   sku: {
     type: String,
     unique: true,
-    trim: true
+    trim: true,
+    index: true
   },
   barcode: {
     type: String,
     unique: true,
-    trim: true
+    trim: true,
+    index: true
   },
   variants: [{
     variantId: String,
@@ -83,8 +85,6 @@ const productSchema = new mongoose.Schema({
 // Indexes
 productSchema.index({ name: 1 });
 productSchema.index({ category: 1 });
-productSchema.index({ sku: 1 });
-productSchema.index({ barcode: 1 });
 productSchema.index({ isActive: 1 });
 productSchema.index({ createdAt: -1 });
 productSchema.index({ 'pricing.costPrice': 1 });

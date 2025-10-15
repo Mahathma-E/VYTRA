@@ -6,11 +6,35 @@ const validateEmail = (email) => {
   return emailRegex.test(email);
 };
 
-// Validate password strength
+// Validate password strength - updated to match frontend requirements
 const validatePassword = (password) => {
-  // At least 8 characters, one uppercase, one lowercase, one number
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
-  return passwordRegex.test(password);
+  // Check if password is provided
+  if (!password) {
+    return { valid: false, message: 'Password is required' };
+  }
+  
+  // Check minimum length
+  if (password.length < 8) {
+    return { valid: false, message: 'Password must be at least 8 characters long' };
+  }
+  
+  // Check for at least one uppercase letter
+  if (!/[A-Z]/.test(password)) {
+    return { valid: false, message: 'Password must contain at least one uppercase letter' };
+  }
+  
+  // Check for at least one lowercase letter
+  if (!/[a-z]/.test(password)) {
+    return { valid: false, message: 'Password must contain at least one lowercase letter' };
+  }
+  
+  // Check for at least one digit
+  if (!/\d/.test(password)) {
+    return { valid: false, message: 'Password must contain at least one number' };
+  }
+  
+  // Password meets all requirements
+  return { valid: true };
 };
 
 // Validate ObjectId format
@@ -92,8 +116,11 @@ export const validateUserRegistration = (req, res, next) => {
     // Validate password
     if (!password) {
       errors.push('Password is required');
-    } else if (!validatePassword(password)) {
-      errors.push('Password must be at least 8 characters with uppercase, lowercase, and number');
+    } else {
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.valid) {
+        errors.push(passwordValidation.message);
+      }
     }
     
     // Validate profile fields if provided

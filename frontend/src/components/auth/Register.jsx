@@ -60,7 +60,12 @@ const Register = () => {
       if (response.success) {
         navigate('/dashboard');
       } else {
-        setError(response.message);
+        // Handle validation errors from backend
+        if (response.errors && response.errors.length > 0) {
+          setError(response.errors.join(', '));
+        } else {
+          setError(response.message);
+        }
       }
       
       setLoading(false);
@@ -140,6 +145,7 @@ const Register = () => {
               id="password"
               value={password}
               onChange={handleChange}
+              helperText="Must be at least 8 characters with uppercase, lowercase, and number"
             />
             <TextField
               margin="normal"

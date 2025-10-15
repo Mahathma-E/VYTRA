@@ -1,10 +1,10 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
 import cors from 'cors';
 import morgan from 'morgan';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import connectDB from './config/db.js';
 
 // Route files
 import authRoutes from './routes/authRoutes.js';
@@ -13,6 +13,8 @@ import inventoryRoutes from './routes/inventoryRoutes.js';
 import alertRoutes from './routes/alertRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import excelRoutes from './routes/excelRoutes.js';
+import currencyRoutes from './routes/currencyRoutes.js';
 
 dotenv.config();
 
@@ -20,33 +22,22 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "http://localhost:5174"],
     methods: ["GET", "POST"]
   }
 });
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8003;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:5173", "http://localhost:5174"]
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// MongoDB connection
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/inventory', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
-    process.exit(1);
-  }
-};
-
+// Connect to MongoDB
 connectDB();
 
 // Socket.io connection
@@ -83,10 +74,31 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/alerts', alertRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/excel', excelRoutes);
+app.use('/api/currency', currencyRoutes);
 
 // Basic route
 app.get('/', (req, res) => {
   res.json({ message: 'Advanced Inventory Intelligence System API' });
+});
+
+// Health check route
+app.get('/health', async (req, res) => {
+  try {
+    res.status(200).json({ 
+      status: 'OK', 
+      database: 'MongoDB',
+      storage: 'Active',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(503).json({ 
+      status: 'Service Unavailable', 
+      database: 'Error',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Error handling middleware
@@ -100,5 +112,8 @@ app.use((err, req, res, next) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server is running on port http://localhost:${PORT}`);
+  console.log(`🚀 Server is running on port http://localhost:${PORT}`);
+  console.log(`🏥 Health check endpoint: http://localhost:${PORT}/health`);
+  console.log(`📊 API endpoints available at: http://localhost:${PORT}/api/`);
+  console.log(`\n✅ Server ready and connected to MongoDB`);
 });

@@ -9,6 +9,7 @@ import {
   Chip,
   CircularProgress
 } from '@mui/material';
+import { useCurrency } from '../../context/CurrencyContext';
 import {
   TrendingUp,
   Inventory,
@@ -138,6 +139,8 @@ const DashboardContent = () => {
 
 // Admin Dashboard Component
 const AdminDashboard = ({ data }) => {
+  const { formatCurrency } = useCurrency();
+  
   return (
     <Box>
       <Grid container spacing={3} sx={{ mb: 3 }}>
@@ -167,7 +170,7 @@ const AdminDashboard = ({ data }) => {
                     Inventory Value
                   </Typography>
                   <Typography variant="h4">
-                    ${data.kpis.totalInventoryValue.toLocaleString()}
+                    {formatCurrency(data.kpis.totalInventoryValue)}
                   </Typography>
                 </Box>
                 <TrendingUp color="success" sx={{ fontSize: 40 }} />
@@ -218,6 +221,8 @@ const AdminDashboard = ({ data }) => {
 
 // Manager Dashboard Component
 const ManagerDashboard = ({ data }) => {
+  const { formatCurrency } = useCurrency();
+  
   return (
     <Box>
       <Grid container spacing={3} sx={{ mb: 3 }}>

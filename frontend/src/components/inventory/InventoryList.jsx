@@ -39,6 +39,7 @@ import {
   TrendingDown as OutIcon
 } from '@mui/icons-material';
 import { useSocket } from '../../context/SocketContext';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const InventoryList = () => {
   const [inventory, setInventory] = useState([]);
@@ -328,6 +329,7 @@ const InventoryList = () => {
 };
 
 const InventoryDialog = ({ open, onClose, type, item }) => {
+  const { currency } = useCurrency();
   const [formData, setFormData] = useState({
     productId: item?.id || '',
     locationId: '',
@@ -430,7 +432,7 @@ const InventoryDialog = ({ open, onClose, type, item }) => {
               margin="normal"
               type="number"
               InputProps={{
-                startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                startAdornment: <InputAdornment position="start">{currency === 'INR' ? '₹' : '$'}</InputAdornment>,
               }}
             />
           </>

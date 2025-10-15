@@ -11,13 +11,26 @@ import {
   Chip,
   Tabs,
   Tab,
-  CircularProgress
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
+  Button,
+  ToggleButton,
+  ToggleButtonGroup
 } from '@mui/material';
 import {
   TrendingUp,
   Inventory,
   ShoppingCart,
-  Warning
+  Warning,
+  FilterList,
+  LocationOn,
+  Category,
+  CalendarToday,
+  Refresh
 } from '@mui/icons-material';
 import {
   Chart as ChartJS,
@@ -31,7 +44,7 @@ import {
   Legend,
   ArcElement
 } from 'chart.js';
-import { Bar, Line, Pie } from 'react-chartjs-2';
+import { Bar, Line, Pie, Doughnut } from 'react-chartjs-2';
 
 // Register Chart.js components
 ChartJS.register(
@@ -50,6 +63,10 @@ const AnalyticsDashboard = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [dashboardMetrics, setDashboardMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [locationFilter, setLocationFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [timeRange, setTimeRange] = useState('7d');
+  const [viewMode, setViewMode] = useState('overview');
 
   // Mock data for demonstration
   const mockDashboardMetrics = {
@@ -60,6 +77,12 @@ const AnalyticsDashboard = () => {
       count: 42,
       totalValue: 32500,
       totalQuantity: 128
+    },
+    kpiData: {
+      inventoryTurnover: 4.2,
+      stockoutRate: 2.1,
+      fillRate: 97.8,
+      obsoleteInventory: 3.5
     }
   };
 
@@ -99,6 +122,28 @@ const AnalyticsDashboard = () => {
     ]
   };
 
+  // Heatmap data for inventory levels
+  const heatmapData = {
+    labels: ['Store 1', 'Store 2', 'Store 3', 'Warehouse A', 'Warehouse B'],
+    datasets: [
+      {
+        label: 'Electronics',
+        data: [85, 72, 90, 65, 78],
+        backgroundColor: 'rgba(255, 99, 132, 0.6)'
+      },
+      {
+        label: 'Furniture',
+        data: [45, 52, 38, 62, 55],
+        backgroundColor: 'rgba(54, 162, 235, 0.6)'
+      },
+      {
+        label: 'Clothing',
+        data: [75, 82, 68, 92, 88],
+        backgroundColor: 'rgba(255, 206, 86, 0.6)'
+      }
+    ]
+  };
+
   useEffect(() => {
     // In a real app, you would fetch dashboard metrics from an API
     setTimeout(() => {
@@ -109,6 +154,13 @@ const AnalyticsDashboard = () => {
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
+  };
+
+  const handleRefresh = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
   };
 
   if (loading) {
@@ -124,8 +176,85 @@ const AnalyticsDashboard = () => {
   return (
     <Container maxWidth="lg">
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">Analytics Dashboard</Typography>
+        <Typography variant="h4">VYTRA Analytics Dashboard</Typography>
+        <Button 
+          variant="outlined" 
+          startIcon={<Refresh />}
+          onClick={handleRefresh}
+        >
+          Refresh Data
+        </Button>
       </Box>
+
+      {/* Filters */}
+      <Paper sx={{ p: 2, mb: 3 }}>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item>
+            <Typography variant="subtitle1">Filters:</Typography>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Location</InputLabel>
+              <Select
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+                label="Location"
+                startAdornment={<LocationOn sx={{ mr: 1 }} />}
+              >
+                <MenuItem value="all">All Locations</MenuItem>
+                <MenuItem value="store1">Store 1</MenuItem>
+                <MenuItem value="store2">Store 2</MenuItem>
+                <MenuItem value="warehouse-a">Warehouse A</MenuItem>
+                <MenuItem value="warehouse-b">Warehouse B</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Category</InputLabel>
+              <Select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                label="Category"
+                startAdornment={<Category sx={{ mr: 1 }} />}
+              >
+                <MenuItem value="all">All Categories</MenuItem>
+                <MenuItem value="electronics">Electronics</MenuItem>
+                <MenuItem value="furniture">Furniture</MenuItem>
+                <MenuItem value="clothing">Clothing</MenuItem>
+                <MenuItem value="books">Books</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Time Range</InputLabel>
+              <Select
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value)}
+                label="Time Range"
+                startAdornment={<CalendarToday sx={{ mr: 1 }} />}
+              >
+                <MenuItem value="7d">Last 7 Days</MenuItem>
+                <MenuItem value="30d">Last 30 Days</MenuItem>
+                <MenuItem value="90d">Last 90 Days</MenuItem>
+                <MenuItem value="1y">Last Year</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <ToggleButtonGroup
+              value={viewMode}
+              exclusive
+              onChange={(e, newView) => setViewMode(newView)}
+              size="small"
+            >
+              <ToggleButton value="overview">Overview</ToggleButton>
+              <ToggleButton value="detailed">Detailed</ToggleButton>
+            </ToggleButtonGroup>
+          </Grid>
+        </Grid>
+      </Paper>
 
       {/* KPI Cards */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
@@ -200,6 +329,76 @@ const AnalyticsDashboard = () => {
             </CardContent>
           </Card>
         </Grid>
+        
+        {/* Additional KPIs */}
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Box display="flex" alignItems="center" justifyContent="space-between">
+                <Box>
+                  <Typography color="textSecondary" gutterBottom>
+                    Inventory Turnover
+                  </Typography>
+                  <Typography variant="h4">
+                    {dashboardMetrics.kpiData.inventoryTurnover}x
+                  </Typography>
+                </Box>
+                <Refresh color="primary" sx={{ fontSize: 40 }} />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Box display="flex" alignItems="center" justifyContent="space-between">
+                <Box>
+                  <Typography color="textSecondary" gutterBottom>
+                    Stockout Rate
+                  </Typography>
+                  <Typography variant="h4">
+                    {dashboardMetrics.kpiData.stockoutRate}%
+                  </Typography>
+                </Box>
+                <Warning color="error" sx={{ fontSize: 40 }} />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Box display="flex" alignItems="center" justifyContent="space-between">
+                <Box>
+                  <Typography color="textSecondary" gutterBottom>
+                    Fill Rate
+                  </Typography>
+                  <Typography variant="h4">
+                    {dashboardMetrics.kpiData.fillRate}%
+                  </Typography>
+                </Box>
+                <TrendingUp color="success" sx={{ fontSize: 40 }} />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Box display="flex" alignItems="center" justifyContent="space-between">
+                <Box>
+                  <Typography color="textSecondary" gutterBottom>
+                    Obsolete Inventory
+                  </Typography>
+                  <Typography variant="h4">
+                    {dashboardMetrics.kpiData.obsoleteInventory}%
+                  </Typography>
+                </Box>
+                <Inventory color="warning" sx={{ fontSize: 40 }} />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
 
       {/* Charts */}
@@ -208,6 +407,7 @@ const AnalyticsDashboard = () => {
           <Tab label="Sales Trends" />
           <Tab label="Inventory Trends" />
           <Tab label="ABC Analysis" />
+          <Tab label="Location Heatmap" />
         </Tabs>
         
         <Box sx={{ p: 3 }}>
@@ -252,11 +452,20 @@ const AnalyticsDashboard = () => {
               </Box>
             </Box>
           )}
+          
+          {activeTab === 3 && (
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                Inventory Levels by Location
+              </Typography>
+              <Bar data={heatmapData} options={{ indexAxis: 'y' }} />
+            </Box>
+          )}
         </Box>
       </Paper>
 
       {/* Forecast Section */}
-      <Paper sx={{ p: 3 }}>
+      <Paper sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6" gutterBottom>
           Demand Forecast
         </Typography>
@@ -281,6 +490,50 @@ const AnalyticsDashboard = () => {
               </Card>
             </Grid>
           ))}
+        </Grid>
+      </Paper>
+
+      {/* Replenishment Recommendations */}
+      <Paper sx={{ p: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Replenishment Recommendations
+        </Typography>
+        <Typography variant="body1" paragraph>
+          Based on current inventory levels and forecasted demand, the following items require attention:
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardHeader title="Immediate Action Required" />
+              <CardContent>
+                <Typography variant="body2">
+                  • Product ID: ELEC-001 - Electronics Component A (Reorder in 2 days)
+                </Typography>
+                <Typography variant="body2">
+                  • Product ID: FURN-045 - Office Chair B (Stock level critical)
+                </Typography>
+                <Typography variant="body2">
+                  • Product ID: CLOTH-123 - Summer T-Shirt (High demand forecast)
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardHeader title="Planned Reorders" />
+              <CardContent>
+                <Typography variant="body2">
+                  • Product ID: BOOK-078 - Bestseller Novel (Scheduled for next week)
+                </Typography>
+                <Typography variant="body2">
+                  • Product ID: ELEC-034 - Smartphone Charger (Monthly reorder)
+                </Typography>
+                <Typography variant="body2">
+                  • Product ID: FURN-067 - Desk Lamp (Seasonal restock)
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
       </Paper>
     </Container>

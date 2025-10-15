@@ -7,12 +7,13 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
     trim: true,
-    lowercase: true
+    lowercase: true,
+    index: true
   },
   password: {
     type: String,
     required: true,
-    minlength: 6
+    minlength: 8  // Updated from 6 to 8 to match frontend requirements
   },
   role: {
     type: String,
@@ -41,19 +42,24 @@ const userSchema = new mongoose.Schema({
 });
 
 // Indexes
-userSchema.index({ email: 1 });
 userSchema.index({ role: 1 });
 userSchema.index({ isActive: 1 });
 userSchema.index({ createdAt: -1 });
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
+  // If password wasn't modified, skip hashing.
   if (!this.isModified('password')) {
-    next();
+    return next();
   }
-  
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    return next();
+  } catch (err) {
+    return next(err);
+  }
 });
 
 // Compare password method

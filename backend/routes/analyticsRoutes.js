@@ -8,7 +8,9 @@ import {
   getSeasonalPatterns,
   generateCustomReport,
   getSupplierPerformance,
-  getStockOptimization
+  getStockOptimization,
+  analyzeImportedData,
+  generateComprehensiveReport
 } from '../controllers/analyticsController.js';
 import { protect, authorize } from '../middleware/authMiddleware.js';
 
@@ -36,5 +38,11 @@ router.route('/supplier-performance')
 
 router.route('/stock-optimization')
   .get(protect, authorize('admin', 'manager'), getStockOptimization);
+
+router.route('/analyze-imported-data')
+  .get(protect, analyzeImportedData);
+
+router.route('/comprehensive-report')
+  .post(protect, authorize('admin', 'manager'), generateComprehensiveReport);
 
 export default router;
